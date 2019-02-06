@@ -1,0 +1,257 @@
+<?php
+
+
+/**
+ *
+ *xtend_footer module allows for users to input their footer information such as social media,
+ *links, contact information, and other elements using a simple form
+ *and display it in the footer for every page.
+ *
+ **/
+
+
+//implements hook_page_alter()
+function xtend_footer_page_alter(&$page) {
+  if (!isset($page['footer'])){
+	foreach (system_region_list($GLOBALS['theme'], REGIONS_ALL) as $region => $name) {
+	  if (in_array($region, array('footer'))) {
+	    $page['footer'] = array(
+	                '#region' => 'footer',
+	                '#weight' => '-10',
+	                '#theme_wrappers' => array('region'),
+	  	);
+	  }
+ 	}
+  }
+}
+
+//alters site information so that users can configure their footer info from the same form
+//implements hook_form_FORM_ID_alter().
+function xtend_footer_form_system_site_information_settings_alter(&$form, &$form_state, $form_id){
+
+	$form['site_information']['xtend_footer'] = array(
+		'#type' => 'fieldset',
+		'#title' => t('Footer Information')
+	);
+
+	$form['site_information']['xtend_footer']['footer_mailing_address'] = array(
+		'#type' => 'textarea',
+		'#title' => t('Mailing Address'),
+		'#default_value' => variable_get('footer_mailing_address'),
+		'#description' => ''
+	);
+
+	$form['site_information']['xtend_footer']['footer_physical_address'] = array(
+		'#type' => 'textarea',
+		'#title' => t('Physical Address'),
+		'#default_value' => variable_get('footer_physical_address'),
+	);
+
+	$form['site_information']['xtend_footer']['footer_contact_phone'] = array(
+		'#type' => 'textfield',
+		'#title' => t('Contact Phone'),
+		'#default_value' => variable_get('footer_contact_phone'),
+		'#description' => 'The phone number should be entered in your preferred display format with area code, but without a leading 1',
+	);
+
+	$form['site_information']['xtend_footer']['footer_contact_fax'] = array(
+		'#type' => 'textfield',
+		'#title' => t('Contact Fax'),
+		'#default_value' => variable_get('footer_contact_fax'),
+		'#description' => 'Optional'
+	);
+
+	$form['site_information']['xtend_footer']['footer_contact_form'] = array(
+		'#type' => 'textfield',
+		'#title' => t('Contact information'),
+		'#default_value' => variable_get('footer_contact_form'),
+		'#description' => 'Either a contact form url, or email'
+	);
+
+
+  /*
+  The following section will extend the site information module's functions to handle
+  social media URL customization & footer links (separated by columns). These functions
+  live in a vertical tab section at the bottom of the page which is separated in four
+  tabs depending on the categories.
+  */
+
+    $form['footer_title'] = array(
+      '#type' => 'item',
+      '#title' => t('Footer Section'),
+    );
+
+    $form['footer'] = array(
+      '#type' => 'vertical_tabs',
+    );
+
+
+
+
+    //CONFIG TAB===============================================================
+    $form['config_footer'] = array(
+      '#type' => 'fieldset',
+  		'#title' => t('Footer Options'),
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#description' => 'This section allows you to choose your footer style.',
+      '#group' => 'footer',
+    );
+
+    //RADIO BUTTON OPTIONS
+    $style_options = array(
+      'one' => t('1'),
+      'two' => t('2'),
+      'three' => t('3'),
+      'four' => t('4'),
+    );
+
+    $form['config_footer']['footer_style'] = array(
+      '#type' => 'radios',
+      '#title' => t('Footer Style'),
+      '#options' => $style_options,
+      '#description' => t('How many columns would you like the footer to have?'),
+      '#default_value' => $options['four'],
+    );
+
+
+
+
+
+
+
+
+    //FIRST COLUMN===============================================================
+    $form['column_one_footer'] = array(
+      '#type' => 'fieldset',
+  		'#title' => t('First Column'),
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#description' => 'This section modifies the first column links on the footer.',
+      '#group' => 'footer',
+    );
+
+    $form['column_one_footer']['c_1_1'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Link')
+    );
+
+    $form['column_one_footer']['c_1_2'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Link')
+    );
+
+    $form['column_one_footer']['c_1_3'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Link')
+    );
+
+    $form['column_one_footer']['c_1_4'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Link')
+    );
+
+
+
+    //SECOND COLUMN===============================================================
+    //This section extends to region-footer-second from region--footer.tpl.php. This form is added under the social media form.
+    $form['column_two_footer'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Second Column'),
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#description' => 'This section modifies the column two links on the footer.',
+      '#group' => 'footer',
+    );
+
+
+    //add additional forms specific to 'column_two_footer'
+
+    $form['column_two_footer']['c_2_1'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Link')
+    );
+
+    $form['column_two_footer']['c_2_2'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Link')
+    );
+
+    $form['column_two_footer']['c_2_3'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Link')
+    );
+
+    $form['column_two_footer']['c_2_4'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Link')
+    );
+
+
+
+
+
+    //THIRD COLUMN===============================================================
+    $form['column_three_footer'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Third Column'),
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#description' => 'This section modifies the third column on the footer.',
+      '#group' => 'footer',
+    );
+
+    $form['column_three_footer']['c_3_1'] = array(
+      '#type' => 'textfield',
+      '#maxlength' => 200,
+      '#title' => t('Link')
+    );
+
+    $form['column_three_footer']['c_3_2'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Link')
+    );
+
+    $form['column_three_footer']['c_3_3'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Link')
+    );
+
+    $form['column_three_footer']['c_3_4'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Link')
+    );
+
+
+
+
+
+    //FOURTH COLUMN===============================================================
+    //This section extends to region-footer-fourth from region--footer.tpl.php. This form is added under the social media form.
+    $form['column_four_footer'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Fourth Column'),
+      '#description' => 'This is the fourth column footer.',
+      '#group' => 'footer',
+    );
+
+    $form['column_four_footer']['c_4_1'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Link')
+    );
+
+    $form['column_four_footer']['c_4_2'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Link')
+    );
+
+    $form['column_four_footer']['c_4_3'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Link')
+    );
+
+    $form['column_four_footer']['c_4_4'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Link')
+    );
+}
